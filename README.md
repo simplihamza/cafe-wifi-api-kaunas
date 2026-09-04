@@ -8,6 +8,9 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
 - `GET /` - renders a simple welcome page (`templates/index.html`).
 - `GET /random` - returns a single random cafe as JSON.
 - `GET /all` - returns every cafe in the database as JSON, sorted by name.
+- `GET /search?location=<location>` - returns cafes matching the given
+  `location` query param as JSON, or a 404 with an error message if none
+  match.
 - SQLite database (`instance/cafes.db`) accessed through Flask-SQLAlchemy,
   with a `Cafe` model covering name, map URL, image URL, location, seat
   count, wifi/sockets/toilet/call availability, and coffee price.
