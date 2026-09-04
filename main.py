@@ -6,6 +6,14 @@ import random
 
 app = Flask(__name__)
 
+TRUTHY_FORM_VALUES = {"true", "1", "yes", "on"}
+
+
+def parse_form_bool(field_name):
+    """Return True if the named form field's value is one of TRUTHY_FORM_VALUES (case-insensitive)."""
+    value = request.form.get(field_name, "")
+    return value.strip().lower() in TRUTHY_FORM_VALUES
+
 # CREATE DB
 class Base(DeclarativeBase):
     pass
@@ -73,10 +81,10 @@ def add_cafe():
         map_url=request.form.get("map_url"),
         img_url=request.form.get("img_url"),
         location=request.form.get("location"),
-        has_sockets=bool(request.form.get("sockets")),
-        has_toilet=bool(request.form.get("toilet")),
-        has_wifi=bool(request.form.get("wifi")),
-        can_take_calls=bool(request.form.get("calls")),
+        has_sockets=parse_form_bool("sockets"),
+        has_toilet=parse_form_bool("toilet"),
+        has_wifi=parse_form_bool("wifi"),
+        can_take_calls=parse_form_bool("calls"),
         seats=request.form.get("seats"),
         coffee_price=request.form.get("coffee_price"),
     )
