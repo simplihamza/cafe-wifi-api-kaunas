@@ -2,9 +2,15 @@ from flask import Flask, jsonify, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean
+from dotenv import load_dotenv
 import random
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
+
+API_KEY = os.environ.get("API_KEY")
 
 TRUTHY_FORM_VALUES = {"true", "1", "yes", "on"}
 
@@ -106,6 +112,18 @@ def update_price(cafe_id):
 
 # HTTP DELETE - Delete Record
 
+@app.route("/report-closed/<cafe_id>", methods=["GET","DELETE"])
+def report_closed(cafe_id):
+    cafe_to_delete = db.session.get(Cafe, cafe_id)
+    if cafe_to_delete is None:
+        return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."}), 404
+    user_api_key = request.args.get("api_key")
+    if user_api_key != API_KEY:
+        return jsonify(error={"Wrong API Key": "Make sure you used the correct API key."}), 404
+    else:
+        db.session.delete(cafe_to_delete)
+        db.session.commit()
+        return jsonify(response={"success": "Successfully deleted the cafe."})
 
 if __name__ == '__main__':
     app.run(debug=True)
