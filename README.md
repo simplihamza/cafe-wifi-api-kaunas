@@ -5,7 +5,8 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
 
 ## Features
 
-- `GET /` - renders a simple welcome page (`templates/index.html`).
+- `GET /` - renders a styled documentation homepage (`templates/index.html`)
+  listing every endpoint below, grouped by Read/Create/Update/Delete.
 - `GET /random` - returns a single random cafe as JSON.
 - `GET /all` - returns every cafe in the database as JSON, sorted by name.
 - `GET /search?location=<location>` - returns cafes matching the given
@@ -15,9 +16,12 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
   `map_url`, `img_url`, `location`, `seats`, `sockets`, `toilet`, `wifi`,
   `calls`, `coffee_price`) and returns a success message. `name`,
   `map_url`, `img_url`, `location`, and `seats` are required.
-- `PATCH /update-price/<cafe_id>?new_price=<price>` - intended to update
-  a cafe's coffee price, but currently non-functional (see Known
-  Issues).
+- `PATCH /update-price/<cafe_id>?new_price=<price>` - updates a cafe's
+  coffee price, or returns a 404 if the id doesn't exist.
+- `DELETE /report-closed/<cafe_id>?api_key=<key>` - deletes a cafe (e.g.
+  to report it closed down), or returns a 404 if the id doesn't exist or
+  the key is wrong. Requires an `API_KEY` environment variable (see
+  Known Issues for what happens if it's not set).
 - SQLite database (`instance/cafes.db`) accessed through Flask-SQLAlchemy,
   with a `Cafe` model covering name, map URL, image URL, location, seat
   count, wifi/sockets/toilet/call availability, and coffee price.
@@ -30,33 +34,30 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
    ```
    pip install -r requirements.txt
    ```
-3. (Optional, first run only) Seed the database with sample cafes:
+3. Copy `.env.example` to `.env` and set `API_KEY` to a value of your
+   choice (required for `/report-closed` to actually check the key).
+4. (Optional, first run only) Seed the database with sample cafes:
    ```
    python seed_data.py
    ```
-4. Start the server:
+5. Start the server:
    ```
    python main.py
    ```
-5. Visit `http://127.0.0.1:5000/` in a browser, or hit `/random` and `/all`
-   directly to get JSON data.
+6. Visit `http://127.0.0.1:5000/` in a browser for an overview of every
+   endpoint, or hit `/random` and `/all` directly to get JSON data.
 
 ## Known Issues / Limitations
 
-- `DELETE` is not implemented; the route is stubbed as a comment in
-  `main.py`.
 - No input validation, authentication, or error handling (e.g. `/random`
   will raise an error if the cafes table is empty, and `/add` will raise
   a 500 `IntegrityError` if a required field like `img_url`, `location`,
   or `seats` is missing from the request, instead of returning a clean
   error response).
-- `/update-price` never actually updates a price: it calls
-  `db.get(Cafe, cafe_id)`, but that method doesn't exist on the
-  Flask-SQLAlchemy `db` object (it should be `db.session.get(...)`).
-  Accessing it raises `AttributeError`, which the route's
-  `except AttributeError` block silently treats as "cafe not found," so
-  every request returns the 404 error response regardless of whether
-  `cafe_id` exists.
+- If `.env` doesn't exist (so `API_KEY` is unset), `/report-closed`'s key
+  check becomes `None != None`, which is `False` - so a request that
+  omits `api_key` entirely passes the check and deletes the cafe anyway,
+  with no key required at all.
 - `requirements.txt` is UTF-16 encoded (artifact of how it was generated),
   which is unusual but still parses fine with `pip install -r`.
 
