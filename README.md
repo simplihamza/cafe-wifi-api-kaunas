@@ -14,8 +14,10 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
 - `POST /add` - creates a new cafe from form-encoded fields (`name`,
   `map_url`, `img_url`, `location`, `seats`, `sockets`, `toilet`, `wifi`,
   `calls`, `coffee_price`) and returns a success message. `name`,
-  `map_url`, `img_url`, `location`, and `seats` are required (see Known
-  Issues for a bug in how the boolean fields are handled).
+  `map_url`, `img_url`, `location`, and `seats` are required.
+- `PATCH /update-price/<cafe_id>?new_price=<price>` - intended to update
+  a cafe's coffee price, but currently non-functional (see Known
+  Issues).
 - SQLite database (`instance/cafes.db`) accessed through Flask-SQLAlchemy,
   with a `Cafe` model covering name, map URL, image URL, location, seat
   count, wifi/sockets/toilet/call availability, and coffee price.
@@ -41,18 +43,20 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
 
 ## Known Issues / Limitations
 
-- Only `GET` and `POST /add` are implemented. Update and delete routes
-  are stubbed as comments in `main.py` and not yet written.
+- `DELETE` is not implemented; the route is stubbed as a comment in
+  `main.py`.
 - No input validation, authentication, or error handling (e.g. `/random`
   will raise an error if the cafes table is empty, and `/add` will raise
   a 500 `IntegrityError` if a required field like `img_url`, `location`,
   or `seats` is missing from the request, instead of returning a clean
   error response).
-- `/add`'s boolean fields (`has_sockets`, `has_toilet`, `has_wifi`,
-  `can_take_calls`) are set with `bool(request.form.get(...))`, which is
-  truthy for any non-empty string. Sending `wifi=false` or `wifi=no`
-  still stores `has_wifi` as `true`; only omitting the key entirely
-  stores `false`. Not fixed yet.
+- `/update-price` never actually updates a price: it calls
+  `db.get(Cafe, cafe_id)`, but that method doesn't exist on the
+  Flask-SQLAlchemy `db` object (it should be `db.session.get(...)`).
+  Accessing it raises `AttributeError`, which the route's
+  `except AttributeError` block silently treats as "cafe not found," so
+  every request returns the 404 error response regardless of whether
+  `cafe_id` exists.
 - `requirements.txt` is UTF-16 encoded (artifact of how it was generated),
   which is unusual but still parses fine with `pip install -r`.
 
@@ -75,8 +79,9 @@ availability, sockets, seating, coffee price, etc.) from a SQLite database.
   `location`, then `seats`). Fixed by including every column marked
   `nullable=False` on the `Cafe` model in the form body; `coffee_price`
   is the only field that's actually optional.
-- Found (not yet fixed) that `bool(request.form.get("wifi"))` isn't a
-  real boolean check: any non-empty string, including `"false"` or
-  `"no"`, is truthy in Python, so it always evaluates to `True` unless
-  the form key is left out entirely. A real fix would need to compare
-  the value against expected strings instead of relying on `bool()`.
+- Found that `bool(request.form.get("wifi"))` isn't a real boolean
+  check: any non-empty string, including `"false"` or `"no"`, is truthy
+  in Python, so it always evaluated to `True` unless the form key was
+  left out entirely. Fixed by adding a `parse_form_bool()` helper that
+  checks the value against a set of recognized truthy strings instead
+  of relying on Python's string truthiness.
