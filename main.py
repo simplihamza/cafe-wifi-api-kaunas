@@ -118,7 +118,7 @@ def report_closed(cafe_id):
     if cafe_to_delete is None:
         return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."}), 404
     user_api_key = request.args.get("api_key")
-    if user_api_key != API_KEY:
+    if not API_KEY or user_api_key != API_KEY:
         return jsonify(error={"Wrong API Key": "Make sure you used the correct API key."}), 404
     else:
         db.session.delete(cafe_to_delete)
