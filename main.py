@@ -112,7 +112,7 @@ def update_price(cafe_id):
 
 # HTTP DELETE - Delete Record
 
-@app.route("/report-closed/<cafe_id>", methods=["GET","DELETE"])
+@app.route("/report-closed/<cafe_id>", methods=["DELETE"])
 def report_closed(cafe_id):
     cafe_to_delete = db.session.get(Cafe, cafe_id)
     if cafe_to_delete is None:
