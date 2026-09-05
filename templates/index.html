@@ -2,9 +2,252 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cafe&Wifi API</title>
+    <style>
+        :root {
+            --bg: #f6f3ee;
+            --surface: #ffffff;
+            --ink: #2b2420;
+            --muted: #6f655c;
+            --border: #e6e0d6;
+            --accent: #a9673a;
+            --get: #2f7a4f;
+            --post: #2f5fa8;
+            --patch: #b8791f;
+            --delete: #b3402f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        header {
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            margin: 0 auto;
+            max-width: 40rem;
+            color: var(--muted);
+        }
+
+        main {
+            max-width: 46rem;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 4rem;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin: 2.5rem 0 1rem;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        .endpoint {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .endpoint-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .method {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            color: #fff;
+            letter-spacing: 0.03em;
+        }
+
+        .method.get {
+            background: var(--get);
+        }
+
+        .method.post {
+            background: var(--post);
+        }
+
+        .method.patch {
+            background: var(--patch);
+        }
+
+        .method.delete {
+            background: var(--delete);
+        }
+
+        .path {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.95rem;
+        }
+
+        .endpoint p {
+            margin: 0.75rem 0 0;
+            color: var(--muted);
+        }
+
+        .params {
+            margin: 0.9rem 0 0;
+            border-top: 1px dashed var(--border);
+            padding-top: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .params div {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.15rem 0;
+        }
+
+        .params code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            background: var(--bg);
+            padding: 0.05rem 0.4rem;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .params .required {
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .params .optional {
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+            padding-bottom: 2.5rem;
+        }
+
+        footer code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Welcome to the Cafe & Wifi API</h1>
+    <header>
+        <h1>☕ Cafe &amp; Wifi API</h1>
+        <p>Find cafes in Kaunas with wifi, sockets, seating and coffee price info. A small
+            Flask + SQLite API built as a learning project.</p>
+    </header>
+
+    <main>
+        <h2>Read</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/random</span>
+            </div>
+            <p>Returns a single randomly selected cafe as JSON.</p>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/all</span>
+            </div>
+            <p>Returns every cafe, sorted alphabetically by name.</p>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method get">GET</span>
+                <span class="path">/search</span>
+            </div>
+            <p>Returns cafes matching a location, or a 404 if none match.</p>
+            <div class="params">
+                <div><code>location</code> <span class="required">required</span> &mdash; e.g. <code>Laisvės al.</code></div>
+            </div>
+        </div>
+
+        <h2>Create</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method post">POST</span>
+                <span class="path">/add</span>
+            </div>
+            <p>Creates a new cafe from form-encoded fields.</p>
+            <div class="params">
+                <div><code>name</code> <span class="required">required</span></div>
+                <div><code>map_url</code> <span class="required">required</span></div>
+                <div><code>img_url</code> <span class="required">required</span></div>
+                <div><code>location</code> <span class="required">required</span></div>
+                <div><code>seats</code> <span class="required">required</span></div>
+                <div><code>coffee_price</code> <span class="optional">optional</span></div>
+                <div><code>sockets</code>, <code>toilet</code>, <code>wifi</code>, <code>calls</code> <span class="optional">optional, true/false</span></div>
+            </div>
+        </div>
+
+        <h2>Update</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method patch">PATCH</span>
+                <span class="path">/update-price/&lt;cafe_id&gt;</span>
+            </div>
+            <p>Updates a cafe's coffee price.</p>
+            <div class="params">
+                <div><code>new_price</code> <span class="required">required</span> &mdash; query param</div>
+            </div>
+        </div>
+
+        <h2>Delete</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-head">
+                <span class="method delete">DELETE</span>
+                <span class="path">/report-closed/&lt;cafe_id&gt;</span>
+            </div>
+            <p>Deletes a cafe, e.g. to report that it has closed down.</p>
+            <div class="params">
+                <div><code>api_key</code> <span class="required">required</span> &mdash; query param</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Base URL: <code>http://127.0.0.1:5000</code> &middot; all responses are JSON
+    </footer>
 </body>
 </html>
