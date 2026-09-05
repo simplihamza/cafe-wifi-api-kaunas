@@ -3,6 +3,10 @@
 A Flask REST API that serves data about cafes in Kaunas, Lithuania (wifi
 availability, sockets, seating, coffee price, etc.) from a SQLite database.
 
+## Screenshot
+
+![Cafe & Wifi API homepage](screenshot.png)
+
 ## Features
 
 - `GET /` - renders a styled documentation homepage (`templates/index.html`)
